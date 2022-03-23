@@ -1,79 +1,49 @@
 #!/bin/sh
 
-#Sequential running of Phyluce pipeline with parallel Trinity implementation for use on Hydra3.   
-#Eliana Buenaventura
-#07-04-21
+# Sequential running of Phyluce pipeline with parallel Trinity implementation for use on Hydra3.   
+# Eliana Buenaventura
+# 07-04-21
 
 
 
-#Illumiprocessor
+# Illumiprocessor
 
-#IMPORTANT – CHANGE NAMES
-#I only did this in this way for the first UCE paper. For Sarcophagidae, I changed names manually (see below)
-#cambiar nombres de archivos que vienen sin '0' despues de X
-#por ejemplo quiero cambiar
-#"15066X6_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz" POR "15066X06_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz"
-#entonces copio los archivos en una carpeta separada y ejecuto esta linea de codigo:
+# IMPORTANT – CHANGE NAMES
+## You should place reads (all the *.txt.gz files) from different lanes, separately, on separated folders. 
+## Before you trim your sequences, file names neen to be changed. You will add a 0 after X on file names. 
+
+## for example
+## "15066X6_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz" for "15066X06_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz"
+
+## to add a 0 after X you run this line of code:
 > for filename in 15066X0*; do echo mv \"$filename\" \"${filename//15066X0/15066X}\"; done
 
-#ejemplo del resultado
+## output exmaple
 mv "15066X5_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5" "15066X05_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5"
 mv "15066X6_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz" "15066X06_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz"
 mv "15066X6_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5" "15066X06_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5"
 mv "15066X6_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz" "15066X06_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz"
 mv "15066X6_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5" "15066X06_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5"
 mv "15066X7_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz" "15066X07_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz"
-mv "15066X7_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5" "15066X07_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5"
-mv "15066X7_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz" "15066X07_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz"
-mv "15066X7_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5" "15066X07_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5"
-mv "15066X8_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz" "15066X08_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz"
-mv "15066X8_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5" "15066X08_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5"
-mv "15066X8_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz" "15066X08_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz"
-mv "15066X8_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5" "15066X08_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5"
-mv "15066X9_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz" "15066X09_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz"
-mv "15066X9_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5" "15066X09_180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz.md5"
-mv "15066X9_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz" "15066X09_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz"
-mv "15066X9_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5" "15066X09_180427_D00294_0392_BCCEA1ANXX_5_2.txt.gz.md5"
 
-
-## For the Sarcophagidae analysis, I did the name changing manually. 
-## I added the 0 after the X both in raw_read files as in the illumi.conf file.
-
-
-## You should place reads (all the *.txt.gz files) from different lanes, separately, on separated folders. 
-## For the Sarcophagidae analysis, I created the folders park (for lane 1) and perk (for line 2)
-## I copied the files of raw reads (*.txt.gz) into each folder
-## Thus, all the files of raw reads (*.txt.gz) from lane 1 (15066R) went to /park/raw_reads
-## and all the files of raw reads (*.txt.gz) from lane 2 (15138R) went to /perk/raw_reads
-##
-## Once I have the two lanes in their separated folders, I added the 0 after the X (solo archivos que vienen sin '0' despues de X) 
-## both in raw_read files as in the illumi.conf file
-##
-## I left the .md5 files into the original folder (15066R or 15138R) where I also have copies of all raw reads
-## Folders 15066R or 15138R are in /Volumes/ELiMole/01_postdoc_si/uce_lab_work/2Lanes/raw_reads
+## Leave your .md5 files into the original folder (p.e., 15066R or 15138R) where you also have copies of all raw reads.
 
 
 
-## COUNTS OF READS
+# COUNTS OF READS
 ## To get counts of raw reads (*.txt.gz), go to the directory where raw reads are and run the following line of code
-## For example go to /pool/genomics/buenaventurae/sarc/park/raw_reads and run
 
 >find . -type f -name '*5_1.txt.gz' -exec bash -c 'echo -n $(basename {} _180427_D00294_0392_BCCEA1ANXX_5_1.txt.gz)",";gunzip -c $1 | echo $((`wc -l`/4)) ' dummy {} \;>read_countsL1.csv
 
-##or for lane 2, go to /pool/genomics/buenaventurae/sarc/perk/raw_reads and run
-
->find . -type f -name '*6_1.txt.gz' -exec bash -c 'echo -n $(basename {} _180525_D00550_0508_BCCJCWANXX_6_1.txt.gz)",";gunzip -c $1 | echo $((`wc -l`/4)) ' dummy {} \;>read_countsL2.csv
 
 
+# OBTAIN CLEAN .fastq READS
 
-##OBTAIN CLEAN .fastq READS
+## Generate the required configuration file: 
+## Conf File (illumi.conf)
+## Make sure to add the 0 after the X on file names
 
-##Generate the required configuration file: 
-##Conf File (illumi.conf)
-##Make sure to add the 0 after the X (solo archivos de reads que vienen sin '0' despues de X) 
-##Debe haber 2 espacios entre la ultima linea de tag map y [names]
-
-#Used for Lane 1
+## example of your illumi.conf
 
 """
 [adapters]
@@ -113,92 +83,6 @@ i5-iTru5_H:CAGTGCTT
 15066X08:i7-iTru7_1,i5-iTru5_H
 15066X09:i7-iTru7_2,i5-iTru5_A
 15066X10:i7-iTru7_2,i5-iTru5_B
-15066X11:i7-iTru7_2,i5-iTru5_C
-15066X12:i7-iTru7_2,i5-iTru5_D
-15066X13:i7-iTru7_2,i5-iTru5_E
-15066X14:i7-iTru7_2,i5-iTru5_F
-15066X15:i7-iTru7_2,i5-iTru5_G
-15066X16:i7-iTru7_2,i5-iTru5_H
-15066X17:i7-iTru7_3,i5-iTru5_A
-15066X18:i7-iTru7_3,i5-iTru5_B
-15066X19:i7-iTru7_3,i5-iTru5_C
-15066X20:i7-iTru7_3,i5-iTru5_D
-15066X21:i7-iTru7_3,i5-iTru5_E
-15066X22:i7-iTru7_3,i5-iTru5_F
-15066X23:i7-iTru7_3,i5-iTru5_G
-15066X24:i7-iTru7_3,i5-iTru5_H
-15066X25:i7-iTru7_4,i5-iTru5_A
-15066X26:i7-iTru7_4,i5-iTru5_B
-15066X27:i7-iTru7_4,i5-iTru5_C
-15066X28:i7-iTru7_4,i5-iTru5_D
-15066X29:i7-iTru7_4,i5-iTru5_E
-15066X30:i7-iTru7_4,i5-iTru5_F
-15066X31:i7-iTru7_4,i5-iTru5_G
-15066X32:i7-iTru7_4,i5-iTru5_H
-15066X33:i7-iTru7_5,i5-iTru5_A
-15066X34:i7-iTru7_5,i5-iTru5_B
-15066X35:i7-iTru7_5,i5-iTru5_C
-15066X36:i7-iTru7_5,i5-iTru5_D
-15066X37:i7-iTru7_5,i5-iTru5_E
-15066X38:i7-iTru7_5,i5-iTru5_F
-15066X39:i7-iTru7_5,i5-iTru5_G
-15066X40:i7-iTru7_5,i5-iTru5_H
-15066X41:i7-iTru7_6,i5-iTru5_A
-15066X42:i7-iTru7_6,i5-iTru5_B
-15066X43:i7-iTru7_6,i5-iTru5_C
-15066X44:i7-iTru7_6,i5-iTru5_D
-15066X45:i7-iTru7_6,i5-iTru5_E
-15066X46:i7-iTru7_6,i5-iTru5_F
-15066X47:i7-iTru7_6,i5-iTru5_G
-15066X48:i7-iTru7_6,i5-iTru5_H
-15066X49:i7-iTru7_7,i5-iTru5_A
-15066X50:i7-iTru7_7,i5-iTru5_B
-15066X51:i7-iTru7_7,i5-iTru5_C
-15066X52:i7-iTru7_7,i5-iTru5_D
-15066X53:i7-iTru7_7,i5-iTru5_E
-15066X54:i7-iTru7_7,i5-iTru5_F
-15066X55:i7-iTru7_7,i5-iTru5_G
-15066X56:i7-iTru7_7,i5-iTru5_H
-15066X57:i7-iTru7_8,i5-iTru5_A
-15066X58:i7-iTru7_8,i5-iTru5_B
-15066X59:i7-iTru7_8,i5-iTru5_C
-15066X60:i7-iTru7_8,i5-iTru5_D
-15066X61:i7-iTru7_8,i5-iTru5_E
-15066X62:i7-iTru7_8,i5-iTru5_F
-15066X63:i7-iTru7_8,i5-iTru5_G
-15066X64:i7-iTru7_8,i5-iTru5_H
-15066X65:i7-iTru7_9,i5-iTru5_A
-15066X66:i7-iTru7_9,i5-iTru5_B
-15066X67:i7-iTru7_9,i5-iTru5_C
-15066X68:i7-iTru7_9,i5-iTru5_D
-15066X69:i7-iTru7_9,i5-iTru5_E
-15066X70:i7-iTru7_9,i5-iTru5_F
-15066X71:i7-iTru7_9,i5-iTru5_G
-15066X72:i7-iTru7_9,i5-iTru5_H
-15066X73:i7-iTru7_10,i5-iTru5_A
-15066X74:i7-iTru7_10,i5-iTru5_B
-15066X75:i7-iTru7_10,i5-iTru5_C
-15066X76:i7-iTru7_10,i5-iTru5_D
-15066X77:i7-iTru7_10,i5-iTru5_E
-15066X78:i7-iTru7_10,i5-iTru5_F
-15066X79:i7-iTru7_10,i5-iTru5_G
-15066X80:i7-iTru7_10,i5-iTru5_H
-15066X81:i7-iTru7_11,i5-iTru5_A
-15066X82:i7-iTru7_11,i5-iTru5_B
-15066X83:i7-iTru7_11,i5-iTru5_C
-15066X84:i7-iTru7_11,i5-iTru5_D
-15066X85:i7-iTru7_11,i5-iTru5_E
-15066X86:i7-iTru7_11,i5-iTru5_F
-15066X87:i7-iTru7_11,i5-iTru5_G
-15066X88:i7-iTru7_11,i5-iTru5_H
-15066X89:i7-iTru7_12,i5-iTru5_A
-15066X90:i7-iTru7_12,i5-iTru5_B
-15066X91:i7-iTru7_12,i5-iTru5_C
-15066X92:i7-iTru7_12,i5-iTru5_D
-15066X93:i7-iTru7_12,i5-iTru5_E
-15066X94:i7-iTru7_12,i5-iTru5_F
-15066X95:i7-iTru7_12,i5-iTru5_G
-15066X96:i7-iTru7_12,i5-iTru5_H
 
 
 [names]
@@ -212,329 +96,23 @@ i5-iTru5_H:CAGTGCTT
 15066X08:EB_5
 15066X09:EB_6
 15066X10:EB_7
-15066X11:EB_8
-15066X12:EB_9
-15066X13:EB_12
-15066X14:EB_13
-15066X15:EB_14
-15066X16:EB_15
-15066X17:EB_16
-15066X18:EB_17
-15066X19:EB_18
-15066X20:EB_19
-15066X21:EB_20
-15066X22:EB_21
-15066X23:EB_22
-15066X24:EB_23
-15066X25:EB_24
-15066X26:EB_25
-15066X27:EB_26
-15066X28:EB_27
-15066X29:EB_28
-15066X30:EB_29
-15066X31:EB_30
-15066X32:EB_31
-15066X33:EB_32
-15066X34:EB_33
-15066X35:EB_34
-15066X36:EB_35
-15066X37:EB_36
-15066X38:EB_37
-15066X39:EB_38
-15066X40:EB_39
-15066X41:EB_40
-15066X42:EB_41
-15066X43:EB_42
-15066X44:EB_43
-15066X45:EB_44
-15066X46:EB_45
-15066X47:EB_46
-15066X48:EB_47
-15066X49:EB_48
-15066X50:EB_49
-15066X51:EB_50
-15066X52:EB_51
-15066X53:EB_52
-15066X54:EB_53
-15066X55:EB_54
-15066X56:EB_55
-15066X57:EB_57
-15066X58:EB_59
-15066X59:EB_60
-15066X60:EB_61
-15066X61:EB_62
-15066X62:EB_63
-15066X63:EB_65
-15066X64:EB_66
-15066X65:EB_67
-15066X66:EB_69
-15066X67:EB_70
-15066X68:EB_71
-15066X69:EB_73
-15066X70:EB_75
-15066X71:EB_76
-15066X72:EB_78
-15066X73:EB_79
-15066X74:EB_80
-15066X75:EB_81
-15066X76:EB_82
-15066X77:EB_83
-15066X78:EB_84
-15066X79:EB_85
-15066X80:EB_86
-15066X81:EB_87
-15066X82:EB_88
-15066X83:EB_89
-15066X84:EB_90
-15066X85:EB_91
-15066X86:EB_92
-15066X87:EB_93
-15066X88:EB_94
-15066X89:EB_95
-15066X90:EB_96
-15066X91:EB_97
-15066X92:EB_98
-15066X93:EB_99
-15066X94:EB_100
-15066X95:EB_101
-15066X96:EB_102
-"""
-
-
-#Used for L2      #ojo reempleacé * por x
-
-"""
-[adapters]
-i7:GATCGGAAGAGCACACGTCTGAACTCCAGTCAC*ATCTCGTATGCCGTCTTCTGCTTG
-i5:AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT*GTGTAGATCTCGGTGGTCGCCGTATCATT
-
-[tag sequences]
-i7-iTru7_1:GGTAGTGT
-i7-iTru7_2:CAACGGAT
-i7-iTru7_3:TACGGTTG
-i7-iTru7_4:CAAGTGCA
-i7-iTru7_5:ATGCACGA
-i7-iTru7_6:AGCAAGCA
-i7-iTru7_7:CTAGGTGA
-i7-iTru7_8:ACTGAGGT
-i7-iTru7_9:CACTGACA
-i7-iTru7_10:CAGTCCAA
-i7-iTru7_11:TCGACATC
-i7-iTru7_12:GAGTCTCT
-i5-iTru5_A:AACACCAC
-i5-iTru5_B:TGAGCTGT
-i5-iTru5_C:CACAGGAA
-i5-iTru5_D:CTGTATGC
-i5-iTru5_E:CTTAGGAC
-i5-iTru5_F:TCAGCCTT
-i5-iTru5_G:ACATGCCA
-i5-iTru5_H:CAGTGCTT
-
-[tag map]
-15138X01:i7-iTru7_1:i5-iTru5_A
-15138X02:i7-iTru7_1:i5-iTru5_B
-15138X03:i7-iTru7_1:i5-iTru5_C
-15138X04:i7-iTru7_1:i5-iTru5_D
-15138X05:i7-iTru7_1:i5-iTru5_E
-15138X06:i7-iTru7_1:i5-iTru5_F
-15138X07:i7-iTru7_1:i5-iTru5_G
-15138X08:i7-iTru7_1:i5-iTru5_H
-15138X09:i7-iTru7_2:i5-iTru5_A
-15138X10:i7-iTru7_2:i5-iTru5_B
-15138X11:i7-iTru7_2:i5-iTru5_C
-15138X12:i7-iTru7_2:i5-iTru5_D
-15138X13:i7-iTru7_2:i5-iTru5_E
-15138X14:i7-iTru7_2:i5-iTru5_F
-15138X15:i7-iTru7_2:i5-iTru5_G
-15138X16:i7-iTru7_2:i5-iTru5_H
-15138X17:i7-iTru7_3:i5-iTru5_A
-15138X18:i7-iTru7_3:i5-iTru5_B
-15138X19:i7-iTru7_3:i5-iTru5_C
-15138X20:i7-iTru7_3:i5-iTru5_D
-15138X21:i7-iTru7_3:i5-iTru5_E
-15138X22:i7-iTru7_3:i5-iTru5_F
-15138X23:i7-iTru7_3:i5-iTru5_G
-15138X24:i7-iTru7_3:i5-iTru5_H
-15138X25:i7-iTru7_4:i5-iTru5_A
-15138X26:i7-iTru7_4:i5-iTru5_B
-15138X27:i7-iTru7_4:i5-iTru5_C
-15138X28:i7-iTru7_4:i5-iTru5_D
-15138X29:i7-iTru7_4:i5-iTru5_E
-15138X30:i7-iTru7_4:i5-iTru5_F
-15138X31:i7-iTru7_4:i5-iTru5_G
-15138X32:i7-iTru7_4:i5-iTru5_H
-15138X33:i7-iTru7_5:i5-iTru5_A
-15138X34:i7-iTru7_5:i5-iTru5_B
-15138X35:i7-iTru7_5:i5-iTru5_C
-15138X36:i7-iTru7_5:i5-iTru5_D
-15138X37:i7-iTru7_5:i5-iTru5_E
-15138X38:i7-iTru7_5:i5-iTru5_F
-15138X39:i7-iTru7_5:i5-iTru5_G
-15138X40:i7-iTru7_5:i5-iTru5_H
-15138X41:i7-iTru7_6:i5-iTru5_A
-15138X42:i7-iTru7_6:i5-iTru5_B
-15138X43:i7-iTru7_6:i5-iTru5_C
-15138X44:i7-iTru7_6:i5-iTru5_D
-15138X45:i7-iTru7_6:i5-iTru5_E
-15138X46:i7-iTru7_6:i5-iTru5_F
-15138X47:i7-iTru7_6:i5-iTru5_G
-15138X48:i7-iTru7_6:i5-iTru5_H
-15138X49:i7-iTru7_7:i5-iTru5_A
-15138X50:i7-iTru7_7:i5-iTru5_B
-15138X51:i7-iTru7_7:i5-iTru5_C
-15138X52:i7-iTru7_7:i5-iTru5_D
-15138X53:i7-iTru7_7:i5-iTru5_E
-15138X54:i7-iTru7_7:i5-iTru5_F
-15138X55:i7-iTru7_7:i5-iTru5_G
-15138X56:i7-iTru7_7:i5-iTru5_H
-15138X57:i7-iTru7_8:i5-iTru5_A
-15138X58:i7-iTru7_8:i5-iTru5_B
-15138X59:i7-iTru7_8:i5-iTru5_C
-15138X60:i7-iTru7_8:i5-iTru5_D
-15138X61:i7-iTru7_8:i5-iTru5_E
-15138X62:i7-iTru7_8:i5-iTru5_F
-15138X63:i7-iTru7_8:i5-iTru5_G
-15138X64:i7-iTru7_8:i5-iTru5_H
-15138X65:i7-iTru7_9:i5-iTru5_A
-15138X66:i7-iTru7_9:i5-iTru5_B
-15138X67:i7-iTru7_9:i5-iTru5_C
-15138X68:i7-iTru7_9:i5-iTru5_D
-15138X69:i7-iTru7_9:i5-iTru5_E
-15138X70:i7-iTru7_9:i5-iTru5_F
-15138X71:i7-iTru7_9:i5-iTru5_G
-15138X72:i7-iTru7_9:i5-iTru5_H
-15138X73:i7-iTru7_10:i5-iTru5_A
-15138X74:i7-iTru7_10:i5-iTru5_B
-15138X75:i7-iTru7_10:i5-iTru5_C
-15138X76:i7-iTru7_10:i5-iTru5_D
-15138X77:i7-iTru7_10:i5-iTru5_E
-15138X78:i7-iTru7_10:i5-iTru5_F
-15138X79:i7-iTru7_10:i5-iTru5_G
-15138X80:i7-iTru7_10:i5-iTru5_H
-15138X81:i7-iTru7_11:i5-iTru5_A
-15138X82:i7-iTru7_11:i5-iTru5_B
-15138X83:i7-iTru7_11:i5-iTru5_C
-15138X84:i7-iTru7_11:i5-iTru5_D
-15138X85:i7-iTru7_11:i5-iTru5_E
-15138X86:i7-iTru7_11:i5-iTru5_F
-15138X87:i7-iTru7_11:i5-iTru5_G
-15138X88:i7-iTru7_11:i5-iTru5_H
-15138X89:i7-iTru7_12:i5-iTru5_A
-15138X90:i7-iTru7_12:i5-iTru5_B
-15138X91:i7-iTru7_12:i5-iTru5_C
-15138X92:i7-iTru7_12:i5-iTru5_D
-15138X93:i7-iTru7_12:i5-iTru5_E
-15138X94:i7-iTru7_12:i5-iTru5_F
-15138X95:i7-iTru7_12:i5-iTru5_G
-15138X96:i7-iTru7_12:i5-iTru5_H
-
-
-[names]
-15138X01:EB_111
-15138X02:EB_112
-15138X03:EB_113
-15138X04:EB_114
-15138X05:EB_115
-15138X06:EB_116
-15138X07:EB_117
-15138X08:EB_118
-15138X09:EB_119
-15138X10:EB_120
-15138X11:EB_121
-15138X12:EB_122
-15138X13:EB_123
-15138X14:EB_124
-15138X15:EB_125
-15138X16:EB_126
-15138X17:EB_128
-15138X18:EB_129
-15138X19:EB_130
-15138X20:EB_131
-15138X21:EB_132
-15138X22:EB_133
-15138X23:EB_134
-15138X24:EB_135
-15138X25:EB_136
-15138X26:EB_137
-15138X27:EB_138
-15138X28:EB_140
-15138X29:EB_141
-15138X30:EB_142
-15138X31:EB_143
-15138X32:EB_144
-15138X33:EB_002x
-15138X34:EB_145
-15138X35:EB_146
-15138X36:EB_147
-15138X37:EB_148
-15138X38:EB_149
-15138X39:EB_150
-15138X40:EB_151
-15138X41:EB_152
-15138X42:EB_153
-15138X43:EB_285x
-15138X44:EB_287x
-15138X45:EB_156
-15138X46:EB_157
-15138X47:EB_159
-15138X48:EB_256x
-15138X49:EB_066x
-15138X50:EB_230x
-15138X51:EB_187x
-15138X52:EB_062x
-15138X53:EB_239x
-15138X54:EB_240x
-15138X55:EB_067x
-15138X56:EB_089x
-15138X57:EB_193x
-15138X58:EB_143x
-15138X59:EB_160x
-15138X60:EB_098x
-15138X61:EB_165
-15138X62:EB_088x
-15138X63:EB_096x
-15138X64:EB_254x
-15138X65:EB_184x
-15138X66:EB_123x
-15138X67:EB_248x
-15138X68:EB_021x
-15138X69:EB_068x
-15138X70:EB_007x
-15138X71:EB_072x
-15138X72:EB_045x
-15138X73:EB_197x
-15138X74:EB_030x
-15138X75:EB_103
-15138X76:EB_229x
-15138X77:EB_228x
-15138X78:EB_140x
-15138X79:EB_162
-15138X80:EB_104
-15138X81:EB_105
-15138X82:EB_106
-15138X83:EB_107
-15138X84:EB_163
-15138X85:EB_164
-15138X86:EB_108
-15138X87:EB_109
-15138X88:EB_110
-15138X89:T_426
-15138X90:T_1143
-15138X91:T_1012
-15138X92:T_1081
-15138X93:T_1157
-15138X94:T_1013
-15138X95:T_1160
-15138X96:T_1162
 """
 
 
 
-#Luego Creo el illumi.job
-#Remember to Change the r1/r2 pattern to match the endings of your sequence files, and the input directory name (if not in /raw_reads). 
+# CREATE YOUR illumi.job
+## Remember to Change the r1/r2 pattern to match the endings of your sequence files, and the input directory name (if not in /raw_reads). 
+## Your illumi.job will create clean files of your reads
 
-####Hydra Job File (illumi.job)  
+## Make sure you have the correct folder structure
+## You should have a folder name fx. 'park'. Inside /park you should have a folder 'raw_reads' where you have the files of raw reads (*.txt.gz)
+## Thus, you should have this structure fx. /pool/genomics/buenaventurae/sarc/park/raw_reads
+## Your illumi.job and illumi.conf files should be in /park
+## You should qsub your illumi.job from folder /park
+## The output files will be placed in a folder called clean-fastq 
 
+
+#### Hydra Job File (illumi.job)  
 
 # /bin/sh
 # ----------------Parameters---------------------- #
@@ -563,47 +141,6 @@ illumiprocessor --input raw_reads \
 --cores $NSLOTS
 #
 echo = `date` job $JOB_NAME done
-
-
-####illumi.job for L2
-
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -pe mthread 4
-#$ -q mThC.q
-#$ -l mres=8G,h_data=2G,h_vmem=2G
-#$ -cwd
-#$ -j y
-#$ -N illumi
-#$ -o illumiprocessor.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce/1.5_tg
-#
-# ----------------Your Commands------------------- #
-#
-echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
-echo + NSLOTS = $NSLOTS
-#
-illumiprocessor --input raw_reads \
---output clean-fastq \
---config illumi.conf \
---r1-pattern {}_180525_D00550_0508_BCCJCWANXX_6_1.txt.gz \
---r2-pattern {}_180525_D00550_0508_BCCJCWANXX_6_2.txt.gz \
---cores $NSLOTS
-#
-echo = `date` job $JOB_NAME done
-
-
-
-##Make sure that you have the correct folder structure. 
-##You should have a folder name fx. 'park'. Inside /park you should have a folder 
-## 'raw_reads' where you have the files of raw reads (*.txt.gz)
-## Thus, you should have this structure fx. /pool/genomics/buenaventurae/sarc/park/raw_reads
-## your illumi.job and illumi.conf files should be in /park
-## You should qsub your illumi.job from folder /park
-## illumi.job es para crear archivos limpios de los reads
 
 
 
