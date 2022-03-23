@@ -13,3 +13,12 @@ This is a wrapper shell script for automating the Phyluce pipeline starting from
 
 This version has been tested only on a cluster (Hydra3). If you try it and there are problems, let me know. 
 
+## Python script to parse and create nice output from match_contigs_log from Phyluce
+This script parses the log file from phyluce_assembly_match_contigs_to_probes to more easily and nicely presented output locus, contig etc. counts.
+
+```
+python match_contigs_log_parse.py [-h] Infile (Outfile)
+```
+
+Where 'Infile' is the logfile produced by phyluce_assembly_match_contigs_to_probes.
+
