@@ -1,10 +1,11 @@
 # uce_analysis_tools
 
+## Phyluce_v2_07Apr2021.sh is a pipeline for uce analysis 
 This is an analysis pipeline (based on Phyluce) for analyzing data collected from ultraconserved elements in organismal genomes on the Smithsonian computer cluster Hydra3.
 
 This is a wrapper shell script for automating the Phyluce pipeline starting from trimming adapter contamination from SE and PE illumina reads with Illumiprocessor to statistical maximum-likelihood analysis with RAxML. Predesigned jobs for running the scripts are included in the pipeline.
 
-## The associated scripts allow for:
+It includes scripts that allow for:
 * sequence quality checks with Illumiprocessor
 * contig assembly with Trinity 
 * identification of UCE contigs, parallel alignment generation and alignment trimming with phyluce scripts
