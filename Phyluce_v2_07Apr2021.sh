@@ -144,9 +144,11 @@ echo = `date` job $JOB_NAME done
 
 
 
-#Trinity Submission Scripts for Hydra 3
-#Creo este bash script "2.trinity_submission.sh" y lo pongo en /pool/genomics/buenaventurae/sarc
-#OJO debe estar fuera del folder "clean-fastq"
+# TRINITY SUBMISSION SCRIPTS FOR Hydra 3
+## Below, you will create a bash script and a job: "2.trinity_submission.sh" and "trinity.job"
+
+## Create this bash script "2.trinity_submission.sh" and place it on /pool/genomics/buenaventurae/sarc
+## CAREFUL: this bash script should not be inside folder "clean-fastq"
 
 ```
 #!/bin/sh
@@ -222,8 +224,8 @@ fi
 done
 ```
 
-#Creo este job "trinity.job" y lo pongo en /pool/genomics/buenaventurae/sarc
-#OJO debe estar fuera del folder "clean-fastq"
+## Create this job "trinity.job" and place it on /pool/genomics/buenaventurae/sarc
+## CAREFUL: this bash script should not be inside folder "clean-fastq"
 
 ```
 module load bioinformatics/trinity/r2013_2_25
@@ -232,48 +234,36 @@ rm -r $OUTDIR/$TAXON
 rm $LOC/split-adapter-quality-trimmed/$TAXON-READ1_cat.fastq.gz $LOC/split-adapter-quality-trimmed/$TAXON-READ1_cat.fastq  $LOC/split-adapter-quality-trimmed/$TAXON-READ2.fastq
 ```
 
-#LUEGO
+## Once your job and bash script are created you do the following steps 1 and 2
 
-#corro chmod +x 2.trinity_submission.sh
+## In step 1 you run:
+chmod +x 2.trinity_submission.sh
 
-#Y luego...
-#Para someter el 2.trinity_submission.sh y el trinity.job entonces voy a /pool/genomics/buenaventurae/sarc
-# y copio esta linea de codigo
-
-#para lane 1
+## In step 2 you go to /pool/genomics/buenaventurae/sarc and run your bash script and job:
 > nohup ./2.trinity_submission.sh /pool/genomics/buenaventurae/sarc/park/clean-fastq /pool/genomics/buenaventurae/sarc/trinity_assemblies_park /pool/genomics/buenaventurae/sarc/trinity.job > trin_submission_nohup.out&
 
 
-#para L2
-> nohup ./2.trinity_submission.sh /pool/genomics/buenaventurae/sarc/perk/clean-fastq /pool/genomics/buenaventurae/sarc/trinity_assemblies_perk /pool/genomics/buenaventurae/sarc/trinity.job > trin_submission_nohup.out&
 
-
-
-
-#Post Trinity Clean up:
-#Rename Trinity Assemblies with esta linea de codigo
+# POST TRINITY CLEAN UP
+## Rename Trinity Assemblies with esta linea de codigo
 > cd trinity_assemblies/
 > rename .Trinity.fasta .contigs.fasta *.Trinity.fasta
 
-#After renaming, move trinity assemblies to a directory called ./contigs/
+
+
+# MOVE TRINITY ASSEMBLIES
+## After renaming, move trinity assemblies to a directory called ./contigs/
 
 > cd mkdir contigs
 > mv /pool/genomics/buenaventurae/uce/trinity_assemblies/*.fasta /pool/genomics/buenaventurae/uce/trinity_assemblies/contigs 
 
-#for L2
-> cd mkdir contigs
-> mv /pool/genomics/buenaventurae/nuce/trinity_assemblies/*.fasta /pool/genomics/buenaventurae/nuce/trinity_assemblies/contigs 
-
-#to merge the L1 and L2
-> mv /pool/genomics/buenaventurae/uce/trinity_assemblies/contigs/*.fasta /pool/genomics/buenaventurae/nuce/trinity_assemblies/contigs 
 
 
-
-
-##You may want to get stats on these raw fastas by running something like the following:
-
+# TRINITY STATS
+## You may want to get stats on these raw fastas by running something like the following:
 ## get summary stats on the raw FASTAS using job Contigstats.job
 
+#### Hydra Job File (Contigstats.job)  
 
 """
 # /bin/sh
@@ -295,17 +285,19 @@ module load bioinformatics/phyluce/1.5_tg
 for i in /pool/genomics/buenaventurae/sarc/trinity_assemblies/contigs/*.fasta;
 do phyluce_assembly_get_fasta_lengths --input $i --csv;
 done
+
 """
 
 
 
+# PHYLUCE STARTS HERE
 
-###The following is for the entire dataset = L1 + L2
+# MATCH CONTIGS TO PROBE SET
+## Match contigs to probe set: Here I will Get contigs that match the probe set
+## Submit your job 
+>qsub 1.match_to_probe.job 
 
-#Continuing Phyluce
-#Match contigs to probe set: Here I will Get contigs that match the probe set
-
-# I prepared this job 1.match_to_probe.job
+#### Hydra Job File (1.match_to_probe.job)
 
 """
 # /bin/sh
@@ -332,11 +324,10 @@ phyluce_assembly_match_contigs_to_probes \
 
 """
 
-#Someter 
->qsub 1.match_to_probe.job 
 
-#El .log del job 1.match_to_probe.job me muestra cuantos loci únicos se recuperaron por especie! <3
-# si quiero ver esto en forma de tabla entonces:
+
+## The .log file from job 1.match_to_probe.job shows how many loci were recovered per species
+## To see this in a table format you run:
 
 > cd /pool/genomics/buenaventurae/barc/sarc/matched_probe_trin_70_80
 >sqlite3 probe.matches.sqlite
@@ -349,159 +340,36 @@ SELECT * FROM matches;
 
 
 
-#Create the data matrix configuration file (taxon_list.conf)
+#CREATE THE DATA MATRIX CONFIGURAITON FILE (taxon_list.conf)
 
+"""
 [oestroidea]
-EB_23
-EB_20
-EB_39
-EB_110
-EB_42
-EB_45
-EB_52
-EB_53
-EB_54
-EB_21
-EB_55
-EB_35
-EB_59
-EB_61
-EB_62
-EB_122
-EB_128
-EB_129
-EB_63
-EB_71
-EB_134
-EB_76
-EB_138
-EB_141
-EB_144
-EB_x002
-EB_79
-EB_80
-EB_81
 EB_0a
-EB_82
 EB_0b
-EB_83
-EB_14
-EB_17
-EB_19
-EB_22
-EB_84
-EB_145
-EB_146
-EB_147
-EB_85
-EB_86
-EB_148
-EB_149
-EB_87
-EB_5
-EB_150
-EB_151
-EB_152
-EB_1
-EB_33
-EB_153
-EB_88
-EB_6
-EB_x287
-EB_x285
-EB_13
-EB_156
-EB_157
-EB_90
-EB_89
-EB_91
-EB_92
-EB_7
-EB_93
-EB_32
-EB_94
-EB_4
-EB_95
-EB_12
-EB_96
-EB_97
-EB_98
-EB_36
-EB_99
-EB_100
-EB_159
-EB_31
-EB_16
-EB_101
-EB_9
-EB_30
-EB_x256
-EB_x230
-EB_x066
-EB_x187
-EB_27
-EB_x062
-EB_x239
-EB_x240
-EB_x067
-EB_x089
-EB_102
-EB_x193
-EB_29
-EB_x143
-EB_x160
-EB_x098
 EB_0c
-EB_x088
-EB_26
-EB_x096
-EB_x254
-EB_x184
-EB_x123
-EB_34
-EB_15
-EB_x248
-EB_x021
-EB_x068
-EB_x007
-EB_x072
-EB_28
-EB_x045
-EB_x197
-EB_x030
-EB_103
-EB_24
-EB_x229
-EB_x228
-EB_8
-EB_x140
-EB_25
+EB_1
 EB_2
-EB_38
-EB_104
-EB_162
-EB_105
-EB_106
-EB_163
-EB_107
-EB_164
 EB_3
-EB_108
-EB_109
-T_1200
-T_1201
-T_1195
-T_1185
-T_1160
+EB_4
+EB_5
+EB_6
+EB_7
+"""
 
 
 
-#INDIVIDUAL DATASETS SET:
-#Create directory for each 'set' analyzed.
+# INDIVIDUAL DATASETS SET
+## Create directory for each 'set' analyzed.
  > mkdir oestroidea
 
  
-#Get match counts: create this job: 2.get_match_counts.job
+ 
+# GET MATCH COUNTS
+## Get match counts: create this job: 2.get_match_counts.job
+## Submit
+> qsub 2.get_match_counts.job
+
+#### Hydra Job File (2.get_match_counts.job)  
 
 """
 # /bin/sh
@@ -530,15 +398,14 @@ phyluce_assembly_get_match_counts \
 
 """
 
-#Submit
-
-> qsub 2.get_match_counts.job
 
 
+# GET FASTAS
+## Now, we need to extract FASTA data that correspond to the loci in your data matrix configuration file
+## Submit
+> qsub 3.fasta_from_match.job
 
-
-
-#Extracting FASTA dataphyluce_assembly_get_fastas_from_match_counts (3.fasta_from_match.job)
+#### Hydra Job File (3.fasta_from_match.job)  
 
 """
 # /bin/sh
@@ -568,80 +435,21 @@ phyluce_assembly_get_fastas_from_match_counts \
 
 """
 
-#luego submit
->qsub 3.fasta_from_match.job
 
 
+# ALIGN FASTA 
+## Aligning and trimming FASTA data phyluce_align_seqcap_align (4.align_fasta.job)
+## There are many options for aligning UCE loci: use  alignments with no trimming, edge-trim the alignments or end+internally trim alignments. 
+## When taxa are “closely” related (< 30-50 MYA, perhaps), edge-trimming alignments is reasonable. 
+## When the taxa span a wider range of divergence times (> 50 MYA), internal trimming could be a better option.
+## Phyluce implements edge-trimming by running the alignment program “as-is” (i.e., without the –no-trim) option. 
+## The pipeline below uses mafft as aligner.
 
+## Edge trimming
+## Submit
+> qsub 4.align_fasta.job
 
-#Hice qsub 3i.explode_fasta.job desde /pool/genomics/buenaventurae/sarc
-
-
-""""
-
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -q lThC.q
-#$ -l mres=2G,h_data=2G,h_vmem=2G
-#$ -cwd
-#$ -j y
-#$ -N ExplodeFastas
-#$ -o ExplodeFastas.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce/1.5_tg
-#
-# ----------------Your Commands------------------- #
-#
-
-phyluce_assembly_explode_get_fastas_file \
-    --input /pool/genomics/buenaventurae/sarc/oestroidea/incomplete_matrix.fasta \
-    --output-dir /pool/genomics/buenaventurae/sarc/oestroidea/exploded-fastas \
-    --by-taxon
-"""
-
-### OJO!!! El output log file del job '3i.explode_fasta.job' es MUY simple y esta bien!
-## Loading bioinformatics/phyluce/1.5_tg
-##  Loading requirement: gcc/4.9.2 tools/mthread-numpy
-##Reading fasta...
-##Writing fasta...
-
-
-
-##You may want to get stats on these exploded-fastas by running something like the following:
-
-## get summary stats on the exploded-FASTAS using job ContigsStats_uces.job
-
-
-"""
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -q lThC.q
-#$ -l mres=2G,h_data=2G,h_vmem=2G
-#$ -cwd
-#$ -j y
-#$ -N ContigsStats_uces
-#$ -o ContigsStats_uces.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce/1.5_tg
-#
-# ----------------Your Commands------------------- #
-#
-
-for i in /pool/genomics/buenaventurae/sarc/oestroidea/exploded-fastas/*.fasta;
-do phyluce_assembly_get_fasta_lengths --input $i --csv;
-done
-
-
-"""
-
-
-
-
-#Aligning and trimming FASTA data phyluce_align_seqcap_align (4.align_fasta.job)
+#### Hydra Job File (4.align_fasta.job)  
 
 """
 # /bin/sh
@@ -674,15 +482,14 @@ phyluce_align_seqcap_align \
 
 """
 
-#luego submit
->qsub 4.align_fasta.job
 
 
+# GBLOCKS 
+## Now we trim these loci using Gblocks
+## Submit
+> qsub 5.gblocks.job
 
-
-
-
-#GBLOCKS (5.gblocks.job)
+#### Hydra Job File (5.gblocks.job)
 
 """
 # /bin/sh
@@ -711,17 +518,20 @@ phyluce_align_get_gblocks_trimmed_alignments_from_untrimmed \
     --b3 12 \
     --b4 7 \
     --cores 6
+
 """
 
-#luego submit
-> qsub 5.gblocks.job
 
 
+# SUMMARY STATS
+## Here we will get stats of our aligments 
+## Submit
+> qsub align_summary.job
+
+#### Hydra Job File (align_summary.job)
 
 
-###Summary Stats align_summary.job
-
-```
+"""
 # /bin/sh
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
@@ -741,11 +551,16 @@ module load bioinformatics/phyluce
 phyluce_align_get_align_summary_data \
 --alignments /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-gblocks/
 
-```
+"""
 
 
 
-###Reduce dataset to a certain percentage of missing data. [here it is 70%] (6.min_taxa_reduction.job)
+# REDUCE DATASET TO A PERCENTAGE OF MISSING DATA
+## Reduce dataset to a certain percentage of missing data. [here it is 70%] 
+## Submit
+> qsub 6.min_taxa_reduction.job
+
+#### Hydra Job File (6.min_taxa_reduction.job)
 
 """
 # /bin/sh
@@ -771,17 +586,16 @@ phyluce_align_get_only_loci_with_min_taxa \
     --output /pool/genomics/buenaventurae/uce/OestroideaL1_v2/mafft-nexus-70per-taxa/ \
     --cores 6
 
-
 """
 
-#luego submit
-> qsub 6.min_taxa_reduction.job
 
 
+# DATA DESIGN
+## Design datasets: This involves locus name removal and add missing data to each UCE locus so that concatenation can happen.
+## Submit
+> qsub 7.data_desig.job
 
-
-
-#Locus name removal and add missing data to each UCE locus so that concatenation can happen (7.data_desig.job).
+#### Hydra Job File (7.data_desig.job)
 
 """
 # /bin/sh
@@ -807,16 +621,16 @@ phyluce_align_add_missing_data_designators  \
     --incomplete-matrix /pool/genomics/buenaventurae/uce/OestroideaL1_v2/incomplete_matrix.incomplete \
     --cores 6
 
-
 """
 
-#luego submit
-> qsub 7.data_desig.job
 
 
+# PREPARE YOUR DATASET FOR PHYLOGENOMIC ANALYSIS USING MAXIMUM-LIKELIHOOD
+## This script will do Formatting for RAxML to run a concatenated analysis.
+## Submit
+> qsub 8.RAxML_Concat.job
 
-
-#Formatting for RAxML - concatenated run (8.RAxML_Concat.job).
+#### Hydra Job File (8.RAxML_Concat.job)
 
 """
 # /bin/sh
@@ -842,15 +656,13 @@ phyluce_align_format_nexus_files_for_raxml \
 """
 
 
-#luego submit
-> qsub 8.RAxML_Concat.job
 
+# RUN YOUR PHYLOGENOMIC ANALYSIS
+## Run with RAxML best tree + 100 bootstrap search. Unpartitioned data.
+## Submit
+> qsub 9.RAxML_run.job
 
-
-
-
-###RAxML Run (9.RAxML_run.job):
-#Run with RAxML best tree + 100 bootstrap search. Unpartitioned data
+#### Hydra Job File (9.RAxML_run.job)
 
 """
 # /bin/sh
@@ -878,368 +690,4 @@ raxmlHPC-PTHREADS-SSE3 -s /pool/genomics/buenaventurae/barc/sarc141/sarc141-conc
 echo = `date` job $JOB_NAME done
 """
 
-#luego submit
-> qsub 9.RAxML_run.job
 
-oest_ana_3 Set up to sun on 8-Jul-2019 at 18:23:34 -> Finish on 9-Jul-2019 at 15:22
-oest_ana_3b Set up to sun on 8-Jul-2019 at 18:45:34 -> Finish on 10-Jul-2019 at 17:02
-
-Finish on 
-
-__________________________________________________________
-
-###PHASING UCES
-
-##To phase your UCE data, you need to have individual-specific “reference” contigs 
-##against which to align your raw reads. 
-##Generally speaking, you can create these individual-specific reference contigs at 
-##several stages of the phyluce pipeline, and ##the stage at which you choose to do this 
-##may depend on the analyses that you are running. That said, I think that the best way 
-##to proceed uses edge-trimmed exploded alignments as your reference contigs, aligns 
-##raw reads to those, and uses the exploded ##alignments and raw reads to phase your 
-##data.(text copied from the Phyluce tutorial for phasing)
-
-##the first is getting my reference contigs in a folder structure to follow the phasing
-##tutorial. In the start of phasing tutorial, they send you to the "Edge trimming" section
-## that is in the tutorial "Tutorial I: UCE phylogenomics" under "Aligning UCE loci". So
-## the first I do is to run my job 4b.align_fasta_edge_trimmed.job to get my reference 
-## contigs in the folder /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-edge-trimmed/
-
-#Hice qsub 4b.align_fasta_edge_trimmed.job desde /pool/genomics/buenaventurae/sarc
-
-"""
-
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -pe mthread 6
-#$ -q lThC.q
-#$ -l mres=6G,h_data=6G,h_vmem=6G
-#$ -cwd
-#$ -j y
-#$ -N AlignFastaTrimmed
-#$ -o AlignFastaTrimmed.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce/1.5_tg
-#
-# ----------------Your Commands------------------- #
-#
-
-phyluce_align_seqcap_align \
-    --fasta /pool/genomics/buenaventurae/sarc/oestroidea/incomplete_matrix.fasta \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-edge-trimmed/ \
-    --taxa 141 \
-    --aligner mafft \
-    --cores 6 \
-    --output-format nexus \
-    --incomplete-matrix
-
-
-"""
-
-
-##El resultado son mis reference contigs in /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-edge-trimmed/
-
-
-
-
-## adicionalmente, corri el siguiente código para obtender estadisticas de los reference contigs
-
-
-module load bioinformatics/phyluce/1.5_tg
-phyluce_align_get_align_summary_data \
-    --alignments /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-edge-trimmed
-
-## el resultado esta en align_summary_mafft-nexus-edge-trimmed.txt
-
-
-
-###Exploding aligned and trimmed UCE sequences
-
-
-##After doing the Edge Trimming with 4b.align_fasta_edge_trimmed.job, then now 
-##you can “explode” the directory of alignments you have generated to create separate 
-##FASTA files for each individual using the following (this assumes your alignments are 
-##in mafft-nexus-edge-trimmed as in the tutorial).
-
-##Para hacer esto creo el job 10.exploded_trimmed_uces.job 
-
-#Hice qsub 10.exploded_trimmed_uces.job desde /pool/genomics/buenaventurae/sarc
-
-
-""""
-
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -q sThC.q
-#$ -l mres=1G,h_data=1G,h_vmem=1G
-#$ -cwd
-#$ -j y
-#$ -N ExplodeTrimmedUCEs
-#$ -o ExplodeTrimmedUCEs.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce/1.5_tg
-#
-# ----------------Your Commands------------------- #
-#
-
-phyluce_align_explode_alignments \
-    --alignments /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-edge-trimmed/ \
-    --input-format nexus \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-edge-trimmed-exploded/ \
-    --by-taxon
-
-"""
-
-
-##You may want to get stats on these exploded-fastas by running something like the following:
-
-## get summary stats on the FASTAS
-for i in mafft-nexus-edge-trimmed-exploded/*.fasta;
-do
-    phyluce_assembly_get_fasta_lengths --input $i --csv;
-done
-
-
-##al hacer esto obtuve un resumen de cada taxon con su nombre (=sample), reads, total bp, mean
-## length,  95 CI length, min, max, median
-##esta info esta guardada en ExplodeTrimmedUCEs_summarystats.csv
-
-
-
-###Creating a re-alignment configuration file
-
-##Before aligning raw reads back to these reference contigs using bwa, you have to create 
-##a configuration file, which tells the program where the cleaned and trimmed fastq reads 
-##are stored for each sample and where to find the reference FASTA file for each sample. 
-##The configuration file should look like in the following example and should be saved as 
-##e.g. phasing.conf
-
-
-##I put my phasing.conf in the folder /pool/genomics/buenaventurae/sarc/snp_phasing/phasing.conf
-
-
-
-###Mapping reads against contigs
-
-##To map the fastq read files against the contig reference database for each sample, 
-##run the following. This will use bwa mem to map the raw reads to the “reference” contigs:
-
-
-##Para hacer esto creo el job 11.mnet-exploded-phasing-multialign-bams.job 
-
-#Hice qsub 11.mnet-exploded-phasing-multialign-bams.job desde /pool/genomics/buenaventurae/sarc
-
-
-"""
-
-# /bin/sh 
-# ----------------Parameters---------------------- #
-#$  -S /bin/sh
-#$ -pe mthread 6
-#$ -q lThC.q
-#$ -l mres=36G,h_data=6G,h_vmem=6G
-#$ -cwd
-#$ -j y
-#$ -N mnet-exploded-multialign-bams
-#$ -o mnet-exploded-multialign-bams.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce
-#
-# ----------------Your Commands------------------- #
-#
-echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
-echo + NSLOTS = $NSLOTS
-#
-phyluce_snp_bwa_multiple_align \
-    --config ./snp_phasing/phasing.conf \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/mnet-exploded-multialign-bams \
-    --cores 6 \
-    --mem
-#
-echo = `date` job $JOB_NAME done
-
-
-"""
-
-#El resultado son mis clean raw reads que están clean-fasta alineadas contra mis reference contigs para cada taxon
-#El resultado está en /pool/genomics/buenaventurae/sarc/oestroidea/mnet-exploded-multialign-bams
-
-
-###Phasing mapped reads
-
-##In the previous step you aligned your sequence reads against the reference FASTA file for
-## each sample. The results are stored in the output folder in bam format. Now you can 
-##start the actual phasing of the reads. This will analyze and sort the reads within 
-##each bam file into two separate bam files (genus_species1.0.bam and genus_species1.1.bam).
-
-##The program is very easy to run and just requires the path to the bam files (output folder 
-##from previous mapping program, /path/to/mapping_results) and the path to the configuration 
-##file, which is the same file as used in the previous step (/path/to/phasing.conf). Then, run:
-
-##Para hacer esto creo el job 12.phasing_bams.job 
-
-#Hice qsub 12.phasing_bams.job desde /pool/genomics/buenaventurae/sarc
-
-"""
-
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -pe mthread 2
-#$ -q lThC.q
-#$ -l mres=8G,h_data=4G,h_vmem=4G
-#$ -cwd
-#$ -j y
-#$ -N phasing_bams
-#$ -o phasing_bams.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce
-#
-# ----------------Your Commands------------------- #
-#
-echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
-echo + NSLOTS = $NSLOTS
-#
-phyluce_snp_phase_uces \
-    --config ./snp_phasing/phasing.conf \
-    --bams /pool/genomics/buenaventurae/sarc/oestroidea/mnet-exploded-multialign-bams \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/multialign-bams-phased-reads
-#
-echo = `date` job $JOB_NAME done
-
-"""
-
-##The program automatically produces a consensus sequence for each of these phased bam 
-##files (= allele sequence) and stores these allele sequences of all samples in a joined 
-##FASTA file (joined_allele_sequences_all_samples.fasta). This allele FASTA is deposited 
-##in the subfolder fastas within your output folder 
-##(i.e. /pool/genomics/buenaventurae/sarc/oestroidea/multialign-bams-phased-reads/fastas/).
-
-##You can directly input that file (joined_allele_sequences_all_samples.fasta) back into 
-##the alignment pipeline, like so:
-
-##Para hacer esto creé los jobs job 13sa.align_fasta_sinuceambiguous.job y 13ca.align_fasta_conuceambiguous.job
-
-## El job 13sa.align_fasta_sinuceambiguous.job descarta todos los UCEs que tengan bases ambiguas. 
-## Al ejecurtarlo se recuperan 2378 UCEs (78,458,561 bytes)
-
-## Dado que ese job descarta tantos UCEs, diseñé otro job, 13ca.align_fasta_conuceambiguous.job, en el que se mantienen
-## todos los UCES así tengan bases ambiguas. Al ejecutarlo se recuperan 2361 UCEs (120,060,567 bytes)
-
-## nótese que el aunque el job 13ca recupera menos UCEs que el job 13sa, la cantidad de bytes es mayor. 
-
-
-
-##job 13sa.align_fasta_sinuceambiguous.job
-
-"""
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -pe mthread 6
-#$ -q lThC.q
-#$ -l mres=36G,h_data=6G,h_vmem=6G
-#$ -cwd
-#$ -j y
-#$ -N Phasing_AlignFasta_ambiguous
-#$ -o Phasing_AlignFasta_ambiguous.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce
-#
-# ----------------Your Commands------------------- #
-#
-echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
-echo + NSLOTS = $NSLOTS
-#
-phyluce_align_seqcap_align \
-    --fasta /pool/genomics/buenaventurae/sarc/oestroidea/multialign-bams-phased-reads/fastas/joined_allele_sequences_all_samples.fasta \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/mafft-fasta-phased-uces \
-    --min-length 100 \
-    --taxa 141 \
-    --aligner mafft \
-    --cores $NSLOTS \
-    --output-format fasta \
-    --incomplete-matrix
-#
-echo = `date` job $JOB_NAME done
-
-"""
-
-
-##job 13ca.align_fasta_conuceambiguous.job
-
-"""
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -pe mthread 6
-#$ -q lThC.q
-#$ -l mres=36G,h_data=6G,h_vmem=6G
-#$ -cwd
-#$ -j y
-#$ -N Phasing_AlignFasta_ambiguous
-#$ -o Phasing_AlignFasta_ambiguous.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce
-#
-# ----------------Your Commands------------------- #
-#
-echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
-echo + NSLOTS = $NSLOTS
-#
-phyluce_align_seqcap_align \
-    --fasta /pool/genomics/buenaventurae/sarc/oestroidea/multialign-bams-phased-reads/fastas/joined_allele_sequences_all_samples.fasta \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/mafft-fasta-phased-uce-ambiguous \
-    --min-length 100 \
-    --taxa 141 \
-    --aligner mafft \
-    --ambiguous \
-    --cores $NSLOTS \
-    --output-format fasta \
-    --incomplete-matrix
-#
-echo = `date` job $JOB_NAME done
-
-"""
-
-#Hice qsub 13sa.align_fasta_sinuceambiguous.job y 13ca.align_fasta_conuceambiguous.job desde /pool/genomics/buenaventurae/sarc
-
-
-
-"""
-# /bin/sh
-# ----------------Parameters---------------------- #
-#$ -S /bin/sh
-#$ -pe mthread 6
-#$ -q lThC.q
-#$ -l mres=36G,h_data=6G,h_vmem=6G
-#$ -cwd
-#$ -j y
-#$ -N MINTAXA_phasedUCE_noambiguous
-#$ -o 13y_MINTAXA_phasedUCE_noambiguous.log
-#
-# ----------------Modules------------------------- #
-module load bioinformatics/phyluce
-#
-# ----------------Your Commands------------------- #
-#
-echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
-echo + NSLOTS = $NSLOTS
-#
-phyluce_align_get_only_loci_with_min_taxa \
-    --alignments /pool/genomics/buenaventurae/sarc/oestroidea/mafft-fasta-phased-uces/ \
-    --taxa 141 \
-    --percent 0.70 \
-    --output /pool/genomics/buenaventurae/sarc/oestroidea/mafft-nexus-phaseduces-70per-taxa/ \
-    --cores $NSLOTS
-#
-echo = `date` job $JOB_NAME done
-"""
