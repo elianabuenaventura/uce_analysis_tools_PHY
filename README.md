@@ -7,7 +7,7 @@ This is a wrapper shell script for automating the Phyluce pipeline starting from
 ## The associated scripts allow for:
 * sequence quality checks with Illumiprocessor
 * contig assembly with Trinity 
-* Identification of UCE contigs, parallel alignment generation and alignment trimming with phyluce scripts
+* identification of UCE contigs, parallel alignment generation and alignment trimming with phyluce scripts
 * alignment data with MAFFT
 * phylogenomic analysis with RAxML
 
