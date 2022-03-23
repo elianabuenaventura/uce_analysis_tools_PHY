@@ -24,5 +24,4 @@ python match_contigs_log_parse_to_nice_output.py [-h] Infile (Outfile)
 Where 'Infile' is the logfile produced by phyluce_assembly_match_contigs_to_probes.
 
 
-**Scripts rely heavily on inspiration and code from [Phyluce](https://github.com/faircloth-lab/phyluce) used under open source licenses:  
-[License A](https://github.com/faircloth-lab/phyluce/blob/master/LICENSE.txt)**
+**Scripts rely heavily on inspiration and code from [Phyluce](https://github.com/faircloth-lab/phyluce) used under open source [License](https://github.com/faircloth-lab/phyluce/blob/master/LICENSE.txt)**
