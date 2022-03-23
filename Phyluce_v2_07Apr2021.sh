@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Sequential running of Phyluce pipeline with parallel Trinity implementation for use on Hydra3.   
-# Eliana Buenaventura
+# The scripts below contain python scripts from Phyluce and jobs prepared and modified by Michael Lloyd and Eliana Buenaventura
 # 07-04-21
 
 
